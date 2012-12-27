@@ -1,3 +1,7 @@
-The purpose of this python project is to create a script that can extract exif information from JPEG files.  This project is mostly an academic venture.
+The purpose of this python project is to create a script that can extract
+exif information from JPEG files.  This project is mostly an academic
+venture.
 
+NOTE:
+This version of README is for the read_field-development branch.
 The purpose of this branch is to further develop the read_field() function.
