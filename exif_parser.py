@@ -39,8 +39,6 @@ def read_app1( data, app1_address ):
         if next_ifd[0] != 0:
             current_address = base_offset + next_ifd[0]
             read_ifd( data, current_address, base_offset, byte_order)
-        print next_ifd
-        print hex( current_address )
     else:
         ret_val = -1
     
@@ -164,7 +162,6 @@ def main():
                 if app1_return < 0:
                     print 'app1 read faild'
             loop += ( size[0] + 2 )
-      
 
     print 'done'
 #   main()
