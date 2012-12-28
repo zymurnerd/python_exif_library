@@ -42,8 +42,8 @@ def read_app1( data, app1_address ):
         print next_ifd
         print hex( current_address )
     else:
-        ret_val -1
-        
+        ret_val = -1
+    
     return ret_val
 #   read_app1()
 
@@ -155,16 +155,18 @@ def main():
         print 'Not a JPEG image.'
         print 'Exiting'
     else:
-        loop = 0
+        loop = 2
         marker = 0
         while loop < ( len( data ) - 1 ) and marker != ( 0xffd9, ):
             marker = struct.unpack( '>H', data[loop:loop+2] )
+            size = struct.unpack( '>H', data[loop+2:loop+4] )
             if marker == ( 0xffe1, ):
+                print 'app1 address: ' + hex( loop )
                 app1_address = loop
                 app1_return = read_app1( data, app1_address )
                 if app1_return < 0:
                     print 'app1 read faild'
-            loop += 1
+            loop += ( size[0] + 2 )
       
 
     print 'done'
