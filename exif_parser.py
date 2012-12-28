@@ -1,8 +1,24 @@
 #!/usr/bin/python -tt
-
+#---------------------------------------------------------------------
+# Module Name:  exif_parser.py
+#
+# Description:  This module parses a JPEG file and returns the exif
+#               data.
+#
+# Author:       Wesley Detweiler
+#
+# Date:         12-27-2012
+#---------------------------------------------------------------------
 import struct
 import sys
 
+
+#---------------------------------------------------------------------
+# Function Name - read_app1()
+#
+# Desctiption - This function gets the location of app1 and gets the
+#               byte order of the data.
+#---------------------------------------------------------------------
 def read_app1( data, app1_address ):
     ret_val = 0
     current_address = app1_address
@@ -29,7 +45,15 @@ def read_app1( data, app1_address ):
         ret_val -1
         
     return ret_val
-    
+#   read_app1()
+
+
+#---------------------------------------------------------------------
+# Function Name - read_ifd()
+#
+# Desctiption - This function finds the IFD field count and gets the
+#               offsets
+#---------------------------------------------------------------------
 def read_ifd( data, address, base_offset, byte_order ):
     current_address = address
     if byte_order == ( 0x4949, ):
@@ -45,7 +69,14 @@ def read_ifd( data, address, base_offset, byte_order ):
         read_field( data, current_address, base_offset, byte_order )
         current_address += 12
         i += 1
-    
+#   read_ifd()
+
+
+#---------------------------------------------------------------------
+# Function Name - read_field()
+#
+# Desctiption - This function parses the IFD fields.
+#---------------------------------------------------------------------
 def read_field( data, address, base_offset, byte_order):
     current_address = address
     n = 0
@@ -105,7 +136,14 @@ def read_field( data, address, base_offset, byte_order):
         print value
         
         current_address = current_offset
-    
+#   read_field()
+
+
+#---------------------------------------------------------------------
+# Function Name - main()
+#
+# Desctiption - This is the main function for the module.
+#---------------------------------------------------------------------
 def main():
     file = open( sys.argv[1], 'rb' )
     data = file.read()
@@ -127,6 +165,7 @@ def main():
       
 
     print 'done'
+#   main()
 
 # This is the standard boilerplate that calls the main() function.
 if __name__ == '__main__':
