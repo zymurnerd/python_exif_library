@@ -39,8 +39,6 @@ def read_app1( data, app1_address ):
         if next_ifd[0] != 0:
             current_address = base_offset + next_ifd[0]
             read_ifd( data, current_address, base_offset, byte_order)
-        print next_ifd
-        print hex( current_address )
     else:
         ret_val = -1
     
@@ -86,7 +84,7 @@ def read_field( data, address, base_offset, byte_order):
     else:
         tag_id = struct.unpack( '>H', data[current_address:current_address+2] )
     print 'tag id:',
-    print tag_id
+    print hex( tag_id[0] )
     current_address += 2
     
     if byte_order == ( 0x4949, ):
@@ -101,25 +99,23 @@ def read_field( data, address, base_offset, byte_order):
     else:
         count = struct.unpack( '>L', data[current_address:current_address+4] )
     print 'count:',
-    print count
+    print hex( count[0] )
     current_address += 4
     
     print 'field type:',
-    print field_type
+    print hex( field_type[0] )
     # Byte length of field data
     if field_type[0] == 1:
         n = count[0] #1-byte x count
-    elif field_type[0] == 2 or field_type == 7:
+    elif field_type[0] == 2 or field_type[0] == 7:
         n = count[0] #1-byte x count
     elif field_type[0] == 3:
         n = 2 * count[0] #2-bytes x count
-    elif field_type[0] == 4 or field_type == 9:
+    elif field_type[0] == 4 or field_type[0] == 9:
         n = 4 * count[0] #4-bytes x count
-    elif field_type[0] == 5 or field_type == 10:
+    elif field_type[0] == 5 or field_type[0] == 10:
         n = 8 * count[0] #2 x 4-bytes x count
-    
-    print 'n = ' + str( n )
-    
+        
     if byte_order == ( 0x4949, ):
         value = struct.unpack( '<L', data[current_address:current_address+4] )
     else:
@@ -130,15 +126,13 @@ def read_field( data, address, base_offset, byte_order):
         current_offset = current_address
         
         current_address = base_offset + value[0]
-        
-        print 'n offset: ' + hex( current_address )
+        print 'value address: ' + hex( current_address )
         num_str = str( n )
         amount = num_str + 'B'
         value =  struct.unpack( amount, data[current_address:(current_address+n)] )
-        print 'value:',
-        print value
-        
         current_address = current_offset
+    print 'value:',
+    print value
 #   read_field()
 
 
@@ -167,7 +161,6 @@ def main():
                 if app1_return < 0:
                     print 'app1 read faild'
             loop += ( size[0] + 2 )
-      
 
     print 'done'
 #   main()
