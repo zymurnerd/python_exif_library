@@ -118,8 +118,6 @@ def read_field( data, address, base_offset, byte_order):
     elif field_type[0] == 5 or field_type == 10:
         n = 8 * count[0] #2 x 4-bytes x count
     
-    print 'n = ' + str( n )
-    
     if byte_order == ( 0x4949, ):
         value = struct.unpack( '<L', data[current_address:current_address+4] )
     else:
@@ -131,7 +129,6 @@ def read_field( data, address, base_offset, byte_order):
         
         current_address = base_offset + value[0]
         
-        print 'n offset: ' + hex( current_address )
         num_str = str( n )
         amount = num_str + 'B'
         value =  struct.unpack( amount, data[current_address:(current_address+n)] )
