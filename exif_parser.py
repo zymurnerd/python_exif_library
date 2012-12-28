@@ -1,8 +1,24 @@
 #!/usr/bin/python -tt
-
+#---------------------------------------------------------------------
+# Module Name:  exif_parser.py
+#
+# Description:  This module parses a JPEG file and returns the exif
+#               data.
+#
+# Author:       Wesley Detweiler
+#
+# Date:         12-27-2012
+#---------------------------------------------------------------------
 import struct
 import sys
 
+
+#---------------------------------------------------------------------
+# Function Name - read_app1()
+#
+# Desctiption - This function gets the location of app1 and gets the
+#               byte order of the data.
+#---------------------------------------------------------------------
 def read_app1( data, app1_address ):
     ret_val = 0
     current_address = app1_address
@@ -26,10 +42,18 @@ def read_app1( data, app1_address ):
         print next_ifd
         print hex( current_address )
     else:
-        ret_val -1
-        
-    return ret_val
+        ret_val = -1
     
+    return ret_val
+#   read_app1()
+
+
+#---------------------------------------------------------------------
+# Function Name - read_ifd()
+#
+# Desctiption - This function finds the IFD field count and gets the
+#               offsets
+#---------------------------------------------------------------------
 def read_ifd( data, address, base_offset, byte_order ):
     current_address = address
     if byte_order == ( 0x4949, ):
@@ -45,7 +69,14 @@ def read_ifd( data, address, base_offset, byte_order ):
         read_field( data, current_address, base_offset, byte_order )
         current_address += 12
         i += 1
-    
+#   read_ifd()
+
+
+#---------------------------------------------------------------------
+# Function Name - read_field()
+#
+# Desctiption - This function parses the IFD fields.
+#---------------------------------------------------------------------
 def read_field( data, address, base_offset, byte_order):
     current_address = address
     n = 0
@@ -62,8 +93,7 @@ def read_field( data, address, base_offset, byte_order):
         field_type = struct.unpack( '<H', data[current_address:current_address+2] )
     else:
         field_type = struct.unpack( '>H', data[current_address:current_address+2] )
-    print 'field type:',
-    print field_type
+    
     current_address += 2
     
     if byte_order == ( 0x4949, ):
@@ -74,17 +104,21 @@ def read_field( data, address, base_offset, byte_order):
     print count
     current_address += 4
     
+    print 'field type:',
+    print field_type
     # Byte length of field data
-    if field_type == 1:
-        n = count #1-byte x count
-    elif field_type == 2 or field_type == 7:
-        n = count #1-byte x count
-    elif field_type == 3:
-        n = 2 * count #2-bytes x count
-    elif field_type == 4 or field_type == 9:
-        n = 4 * count #4-bytes x count
-    elif field_type == 5 or field_type == 10:
-        n = 8 * count #2 x 4-bytes x count
+    if field_type[0] == 1:
+        n = count[0] #1-byte x count
+    elif field_type[0] == 2 or field_type == 7:
+        n = count[0] #1-byte x count
+    elif field_type[0] == 3:
+        n = 2 * count[0] #2-bytes x count
+    elif field_type[0] == 4 or field_type == 9:
+        n = 4 * count[0] #4-bytes x count
+    elif field_type[0] == 5 or field_type == 10:
+        n = 8 * count[0] #2 x 4-bytes x count
+    
+    print 'n = ' + str( n )
     
     if byte_order == ( 0x4949, ):
         value = struct.unpack( '<L', data[current_address:current_address+4] )
@@ -95,9 +129,9 @@ def read_field( data, address, base_offset, byte_order):
     if n > 4:
         current_offset = current_address
         
-        current_address = base_offset + value
+        current_address = base_offset + value[0]
         
-        
+        print 'n offset: ' + hex( current_address )
         num_str = str( n )
         amount = num_str + 'B'
         value =  struct.unpack( amount, data[current_address:(current_address+n)] )
@@ -105,7 +139,14 @@ def read_field( data, address, base_offset, byte_order):
         print value
         
         current_address = current_offset
-    
+#   read_field()
+
+
+#---------------------------------------------------------------------
+# Function Name - main()
+#
+# Desctiption - This is the main function for the module.
+#---------------------------------------------------------------------
 def main():
     file = open( sys.argv[1], 'rb' )
     data = file.read()
@@ -114,19 +155,22 @@ def main():
         print 'Not a JPEG image.'
         print 'Exiting'
     else:
-        loop = 0
+        loop = 2
         marker = 0
         while loop < ( len( data ) - 1 ) and marker != ( 0xffd9, ):
             marker = struct.unpack( '>H', data[loop:loop+2] )
+            size = struct.unpack( '>H', data[loop+2:loop+4] )
             if marker == ( 0xffe1, ):
+                print 'app1 address: ' + hex( loop )
                 app1_address = loop
                 app1_return = read_app1( data, app1_address )
                 if app1_return < 0:
                     print 'app1 read faild'
-            loop += 1
+            loop += ( size[0] + 2 )
       
 
     print 'done'
+#   main()
 
 # This is the standard boilerplate that calls the main() function.
 if __name__ == '__main__':
